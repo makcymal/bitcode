@@ -10,6 +10,7 @@ use alloc::string::String;
 use alloc::vec::Vec;
 use core::num::NonZeroUsize;
 use core::str::{from_utf8, from_utf8_unchecked};
+use std::path::{Path, PathBuf};
 
 #[derive(Default)]
 pub struct StrEncoder(pub(crate) VecEncoder<U8Char>); // pub(crate) for arrayvec.rs
@@ -69,6 +70,21 @@ impl Encoder<String> for StrEncoder {
         String: 'a,
     {
         self.encode_vectored(i.map(String::as_str));
+    }
+}
+
+impl Encoder<PathBuf> for StrEncoder {
+    #[inline(always)]
+    fn encode(&mut self, t: &PathBuf) {
+        self.encode(t.to_str().unwrap());
+    }
+
+    #[inline(always)]
+    fn encode_vectored<'a>(&mut self, i: impl Iterator<Item = &'a PathBuf> + Clone)
+    where
+        String: 'a,
+    {
+        self.encode_vectored(i.map(|p| p.to_str().unwrap()));
     }
 }
 
@@ -136,6 +152,14 @@ impl<'a> Decoder<'a, String> for StrDecoder<'a> {
     fn decode(&mut self) -> String {
         let v: &str = self.decode();
         v.to_owned()
+    }
+}
+
+impl<'a> Decoder<'a, PathBuf> for StrDecoder<'a> {
+    #[inline(always)]
+    fn decode(&mut self) -> PathBuf {
+        let v: &str = self.decode();
+        PathBuf::from(v)
     }
 }
 

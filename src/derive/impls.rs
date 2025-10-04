@@ -17,6 +17,7 @@ use alloc::vec::Vec;
 use core::marker::PhantomData;
 use core::mem::MaybeUninit;
 use core::num::*;
+use std::path::PathBuf;
 
 macro_rules! impl_both {
     ($t:ty, $encoder:ident, $decoder:ident) => {
@@ -32,6 +33,7 @@ pub(crate) use impl_both;
 impl_both!(bool, BoolEncoder, BoolDecoder);
 impl_both!(f32, F32Encoder, F32Decoder);
 impl_both!(String, StrEncoder, StrDecoder);
+impl_both!(PathBuf, StrEncoder, StrDecoder);
 
 macro_rules! impl_int {
     ($($t:ty),+) => {
